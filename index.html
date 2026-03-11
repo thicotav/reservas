@@ -610,20 +610,26 @@ renderCal();
 // ── PWA INSTALL POPUP ──
 let deferredPrompt = null;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isInStandalone = window.matchMedia('(display-mode: standalone)').matches
-  || window.navigator.standalone;
-
-function mostrarPopup() {
-  if (isInStandalone) return; // já instalado
-  if (sessionStorage.getItem('popupVisto')) return; // já viu nessa sessão
-  setTimeout(() => {
-    document.getElementById('popup-overlay').classList.add('show');
-  }, 2500);
-}
+const isInStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
 function fecharPopup() {
   document.getElementById('popup-overlay').classList.remove('show');
-  sessionStorage.setItem('popupVisto', '1');
+  localStorage.setItem('popupInstalacao', Date.now());
+}
+
+function devemostrar() {
+  if (isInStandalone) return false;
+  const ultima = localStorage.getItem('popupInstalacao');
+  if (!ultima) return true;
+  // Mostra novamente após 7 dias
+  return (Date.now() - parseInt(ultima)) > 7 * 24 * 60 * 60 * 1000;
+}
+
+function mostrarPopup() {
+  if (!devemostrar()) return;
+  setTimeout(() => {
+    document.getElementById('popup-overlay').classList.add('show');
+  }, 1500);
 }
 
 // Fecha ao clicar fora do card
@@ -631,35 +637,31 @@ document.getElementById('popup-overlay').addEventListener('click', function(e) {
   if (e.target === this) fecharPopup();
 });
 
-// Android/Chrome — captura evento de instalação
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  mostrarPopup();
-});
-
-// iOS Safari — mostra instruções manuais
-if (isIOS && !isInStandalone) {
+// iOS Safari
+if (isIOS) {
   document.getElementById('popup-sub').textContent =
     'Siga os passos abaixo para adicionar o Sítio Vianas à sua tela inicial:';
   document.getElementById('popup-passos').classList.add('show');
-  document.getElementById('btn-instalar').textContent = '✅ Entendido!';
+  document.getElementById('btn-instalar').innerHTML = '✅ Entendido, vou instalar!';
   document.getElementById('btn-instalar').onclick = fecharPopup;
   mostrarPopup();
-} else if (!isInStandalone) {
-  // Android/outros
+} else {
+  // Android / Desktop
   document.getElementById('btn-instalar').onclick = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
-      fecharPopup();
-    } else {
-      fecharPopup();
     }
+    fecharPopup();
   };
-  // Mostra popup mesmo sem beforeinstallprompt (alguns navegadores)
-  setTimeout(mostrarPopup, 2500);
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  mostrarPopup();
 }
 
 </script>
