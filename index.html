@@ -608,62 +608,75 @@ document.getElementById("btn-next").onclick = () => {
 renderCal();
 
 // ── PWA INSTALL POPUP ──
-let deferredPrompt = null;
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isInStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
+const isAndroid = /android/i.test(navigator.userAgent);
+const isInStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
 function fecharPopup() {
   document.getElementById('popup-overlay').classList.remove('show');
-  localStorage.setItem('popupInstalacao', Date.now());
+  localStorage.setItem('popup_fechado', Date.now());
 }
 
-function devemostrar() {
-  if (isInStandalone) return false;
-  const ultima = localStorage.getItem('popupInstalacao');
-  if (!ultima) return true;
-  // Mostra novamente após 7 dias
-  return (Date.now() - parseInt(ultima)) > 7 * 24 * 60 * 60 * 1000;
-}
-
-function mostrarPopup() {
-  if (!devemostrar()) return;
-  setTimeout(() => {
-    document.getElementById('popup-overlay').classList.add('show');
-  }, 1500);
-}
-
-// Fecha ao clicar fora do card
 document.getElementById('popup-overlay').addEventListener('click', function(e) {
   if (e.target === this) fecharPopup();
 });
 
-// iOS Safari
-if (isIOS) {
-  document.getElementById('popup-sub').textContent =
-    'Siga os passos abaixo para adicionar o Sítio Vianas à sua tela inicial:';
-  document.getElementById('popup-passos').classList.add('show');
-  document.getElementById('btn-instalar').innerHTML = '✅ Entendido, vou instalar!';
-  document.getElementById('btn-instalar').onclick = fecharPopup;
-  mostrarPopup();
-} else {
-  // Android / Desktop
-  document.getElementById('btn-instalar').onclick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-    }
-    fecharPopup();
-  };
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-  });
-
-  mostrarPopup();
+function deveExibir() {
+  if (isInStandalone) return false;
+  // Limpa chaves antigas de versoes anteriores
+  localStorage.removeItem('popupVisto');
+  localStorage.removeItem('popupInstalacao');
+  const t = localStorage.getItem('popup_fechado');
+  if (!t) return true;
+  return (Date.now() - parseInt(t)) > 7 * 24 * 60 * 60 * 1000;
 }
 
+function abrirPopup() {
+  document.getElementById('popup-overlay').classList.add('show');
+}
+
+if (deveExibir()) {
+  if (isIOS) {
+    // iPhone — instruções manuais
+    document.getElementById('popup-sub').textContent = 'Siga os passos para adicionar à tela inicial:';
+    document.getElementById('popup-passos').classList.add('show');
+    document.getElementById('btn-instalar').innerHTML = '✅ Entendido!';
+    document.getElementById('btn-instalar').onclick = fecharPopup;
+    setTimeout(abrirPopup, 1500);
+
+  } else {
+    // Android / Desktop — tenta instalar, senão só mostra dica
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    document.getElementById('btn-instalar').onclick = async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      } else {
+        // Fallback: mostra instruções manuais Android
+        document.getElementById('popup-sub').textContent = 'Siga os passos no Chrome:';
+        document.getElementById('popup-passos').innerHTML = \`
+          <div class="passo"><div class="passo-num">1</div><span>Toque nos <strong>3 pontinhos ⋮</strong> no canto superior direito</span></div>
+          <div class="passo"><div class="passo-num">2</div><span>Toque em <strong>"Adicionar à tela inicial"</strong></span></div>
+          <div class="passo"><div class="passo-num">3</div><span>Confirme tocando em <strong>"Adicionar"</strong></span></div>
+        \`;
+        document.getElementById('popup-passos').classList.add('show');
+        document.getElementById('btn-instalar').innerHTML = '✅ Entendido!';
+        document.getElementById('btn-instalar').onclick = fecharPopup;
+        return;
+      }
+      fecharPopup();
+    };
+
+    setTimeout(abrirPopup, 1500);
+  }
+}
 </script>
 
 <!-- ── POPUP INSTALAR COMO APP ── -->
