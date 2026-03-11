@@ -2,7 +2,8 @@
   "name": "Sítio Vianas – Reservas",
   "short_name": "Sítio Vianas",
   "description": "Reserve seu final de semana no Sítio Vianas, Juquitiba/SP",
-  "start_url": "/reservas/",
+  "start_url": "/reservas/index.html",
+  "scope": "/reservas/",
   "display": "standalone",
   "background_color": "#0F0F13",
   "theme_color": "#0F0F13",
@@ -11,17 +12,20 @@
     {
       "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f333.png",
       "sizes": "72x72",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f333.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f333.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
