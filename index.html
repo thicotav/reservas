@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Reservas</title>
+<title>Sítio Vianas – Reservas</title>
+<meta name="description" content="Reserve seu final de semana no Sítio Vianas, Juquitiba/SP">
+<meta name="theme-color" content="#0F0F13">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sítio Vianas">
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -209,6 +216,111 @@ body {
   border: 1px solid var(--red); color: var(--red);
 }
 .toast.show { opacity: 1; }
+
+.btn-insta {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 0 16px 0;
+  padding: 13px 20px;
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border: none; border-radius: var(--r);
+  color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; text-decoration: none;
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 6px 20px rgba(220,39,67,0.3);
+  width: calc(100% - 32px);
+}
+.btn-insta:active { opacity: .88; transform: scale(.98); }
+.btn-insta svg { width: 20px; height: 20px; flex-shrink: 0; }
+.btn-insta-text { display: flex; flex-direction: column; align-items: flex-start; }
+.btn-insta-titulo { font-size: 0.88rem; font-weight: 700; line-height: 1; }
+.btn-insta-sub { font-size: 0.68rem; font-weight: 400; opacity: .85; margin-top: 2px; }
+
+/* ── POPUP INSTALAR ── */
+.popup-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; transition: opacity .35s;
+  pointer-events: none;
+}
+.popup-overlay.show { opacity: 1; pointer-events: all; }
+
+.popup-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 36px;
+  width: 100%; max-width: 430px;
+  transform: translateY(100%);
+  transition: transform .4s cubic-bezier(.32,1.2,.4,1);
+}
+.popup-overlay.show .popup-card { transform: translateY(0); }
+
+.popup-handle {
+  width: 40px; height: 4px;
+  background: var(--border2); border-radius: 2px;
+  margin: 0 auto 22px;
+}
+.popup-icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, #1a2a1a, #2a3a2a);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; margin: 0 auto 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.popup-titulo {
+  font-size: 1.15rem; font-weight: 800;
+  color: var(--text); text-align: center; margin-bottom: 6px;
+}
+.popup-sub {
+  font-size: 0.82rem; color: var(--text2);
+  text-align: center; line-height: 1.55; margin-bottom: 24px;
+}
+
+.popup-passos {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px;
+  margin-bottom: 20px; display: none;
+}
+.popup-passos.show { display: block; }
+.passo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.8rem; color: var(--text2);
+  padding: 6px 0;
+}
+.passo:not(:last-child) { border-bottom: 1px solid var(--border); }
+.passo-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); color: #000;
+  font-size: 0.65rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.passo strong { color: var(--text); }
+
+.popup-btns { display: flex; flex-direction: column; gap: 10px; }
+.btn-instalar {
+  width: 100%; background: var(--accent);
+  border: none; border-radius: var(--r);
+  color: #000; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.92rem; font-weight: 800; padding: 15px;
+  cursor: pointer; transition: opacity .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-instalar:active { opacity: .85; }
+.btn-fechar-popup {
+  width: 100%; background: transparent;
+  border: 1px solid var(--border2); border-radius: var(--r);
+  color: var(--text2); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.85rem; font-weight: 600; padding: 13px;
+  cursor: pointer; transition: all .2s;
+}
+.btn-fechar-popup:active { border-color: var(--accent); color: var(--accent); }
 </style>
 </head>
 <body>
@@ -220,6 +332,18 @@ body {
   <div class="topo-titulo">Faça sua<br>reserva: Sítio Vianas 🗓️</div>
   <div class="topo-sub">Escolha as datas disponíveis e envie a solicitação pelo WhatsApp.</div>
 </div>
+
+<a class="btn-insta" href="https://instagram.com/VIANASSITIO" target="_blank">
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </svg>
+  <div class="btn-insta-text">
+    <span class="btn-insta-titulo">Siga no Instagram</span>
+    <span class="btn-insta-sub">@VIANASSITIO · Veja fotos do sítio</span>
+  </div>
+</a>
+
+<div style="height:20px"></div>
 
 <div class="legenda">
   <div class="leg-item">
@@ -482,6 +606,81 @@ document.getElementById("btn-next").onclick = () => {
 };
 
 renderCal();
+
+// ── PWA INSTALL POPUP ──
+let deferredPrompt = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandalone = window.matchMedia('(display-mode: standalone)').matches
+  || window.navigator.standalone;
+
+function mostrarPopup() {
+  if (isInStandalone) return; // já instalado
+  if (sessionStorage.getItem('popupVisto')) return; // já viu nessa sessão
+  setTimeout(() => {
+    document.getElementById('popup-overlay').classList.add('show');
+  }, 2500);
+}
+
+function fecharPopup() {
+  document.getElementById('popup-overlay').classList.remove('show');
+  sessionStorage.setItem('popupVisto', '1');
+}
+
+// Fecha ao clicar fora do card
+document.getElementById('popup-overlay').addEventListener('click', function(e) {
+  if (e.target === this) fecharPopup();
+});
+
+// Android/Chrome — captura evento de instalação
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  mostrarPopup();
+});
+
+// iOS Safari — mostra instruções manuais
+if (isIOS && !isInStandalone) {
+  document.getElementById('popup-sub').textContent =
+    'Siga os passos abaixo para adicionar o Sítio Vianas à sua tela inicial:';
+  document.getElementById('popup-passos').classList.add('show');
+  document.getElementById('btn-instalar').textContent = '✅ Entendido!';
+  document.getElementById('btn-instalar').onclick = fecharPopup;
+  mostrarPopup();
+} else if (!isInStandalone) {
+  // Android/outros
+  document.getElementById('btn-instalar').onclick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      fecharPopup();
+    } else {
+      fecharPopup();
+    }
+  };
+  // Mostra popup mesmo sem beforeinstallprompt (alguns navegadores)
+  setTimeout(mostrarPopup, 2500);
+}
+
 </script>
+
+<!-- ── POPUP INSTALAR COMO APP ── -->
+<div class="popup-overlay" id="popup-overlay">
+  <div class="popup-card">
+    <div class="popup-handle"></div>
+    <div class="popup-icon">🌿</div>
+    <div class="popup-titulo">Adicionar à tela inicial</div>
+    <div class="popup-sub" id="popup-sub">Instale o Sítio Vianas como um app e acesse suas reservas com um toque, sem precisar abrir o navegador.</div>
+    <div class="popup-passos" id="popup-passos">
+      <div class="passo"><div class="passo-num">1</div><span>Toque em <strong>Compartilhar</strong> <span style="font-size:1rem">⬆️</span> no Safari</span></div>
+      <div class="passo"><div class="passo-num">2</div><span>Role e toque em <strong>"Adicionar à Tela Início"</strong></span></div>
+      <div class="passo"><div class="passo-num">3</div><span>Toque em <strong>"Adicionar"</strong> no canto superior direito</span></div>
+    </div>
+    <div class="popup-btns">
+      <button class="btn-instalar" id="btn-instalar">📲 Instalar como app</button>
+      <button class="btn-fechar-popup" onclick="fecharPopup()">Agora não</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
