@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reservas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg:       #0F0F13;
+  --surface:  #1A1A22;
+  --surface2: #24242F;
+  --border:   rgba(255,255,255,0.08);
+  --border2:  rgba(255,255,255,0.14);
+  --accent:   #6EE7B7;
+  --accent2:  #34D399;
+  --accentbg: rgba(110,231,183,0.10);
+  --red:      #F87171;
+  --redbg:    rgba(248,113,113,0.12);
+  --text:     #F1F1F5;
+  --text2:    #8B8BA0;
+  --text3:    #5A5A70;
+  --whats:    #22C55E;
+  --r:        16px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.topo {
+  padding: 28px 22px 20px;
+  background: linear-gradient(180deg, #131318 0%, transparent 100%);
+}
+.topo-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: .12em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 6px;
+}
+.topo-titulo {
+  font-size: 1.65rem; font-weight: 800; line-height: 1.2; color: var(--text);
+}
+.topo-sub {
+  font-size: 0.83rem; color: var(--text2); margin-top: 6px; line-height: 1.5;
+}
+
+.legenda {
+  display: flex; gap: 16px; padding: 0 22px 20px;
+}
+.leg-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.72rem; color: var(--text2); font-weight: 500;
+}
+.leg-dot { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
+
+.cal-wrap {
+  margin: 0 16px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cal-mes { font-size: 1rem; font-weight: 700; color: var(--text); }
+.cal-navs { display: flex; gap: 8px; }
+.cal-btn {
+  width: 34px; height: 34px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; color: var(--text);
+  font-size: 1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.cal-btn:active { background: var(--accent); color: #000; }
+
+.cal-semana {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  padding: 10px 10px 4px;
+}
+.cal-semana span {
+  text-align: center; font-size: 0.65rem; font-weight: 700;
+  color: var(--text3); letter-spacing: .06em; padding: 4px 0;
+}
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  padding: 0 10px 14px; gap: 3px;
+}
+.dia {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  font-size: 0.82rem; font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+  color: var(--text);
+  user-select: none;
+}
+.dia:empty { cursor: default; }
+.dia.passado { color: var(--text3); cursor: not-allowed; }
+.dia.hoje { color: var(--accent); font-weight: 700; }
+.dia.hoje::after {
+  content: ''; position: absolute; bottom: 3px;
+  width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+}
+.dia.reservado {
+  background: var(--redbg); color: var(--red);
+  cursor: not-allowed; font-weight: 600;
+}
+.dia.entrada {
+  background: var(--accent); color: #000; font-weight: 800;
+  border-radius: 10px 0 0 10px;
+}
+.dia.saida {
+  background: var(--accent2); color: #000; font-weight: 800;
+  border-radius: 0 10px 10px 0;
+}
+.dia.entrada.saida { border-radius: 10px; }
+.dia.intervalo {
+  background: var(--accentbg); color: var(--accent); border-radius: 0;
+}
+.dia:not(.passado):not(.reservado):not(:empty):not(.entrada):not(.saida):not(.intervalo):hover {
+  background: var(--surface2);
+}
+
+.section-title {
+  padding: 0 22px 14px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: .1em;
+  color: var(--text2); text-transform: uppercase;
+}
+.form-wrap { margin: 0 16px; }
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 0.72rem; font-weight: 700; letter-spacing:.06em;
+  color: var(--text2); text-transform: uppercase; margin-bottom: 7px;
+}
+.field input, .field textarea {
+  width: 100%; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: var(--r);
+  color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.92rem; padding: 14px 16px; outline: none;
+  transition: border-color .2s; -webkit-appearance: none;
+}
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+.field input::placeholder, .field textarea::placeholder { color: var(--text3); }
+.field textarea { resize: none; height: 80px; }
+
+.periodo-box {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.periodo-item { flex: 1; }
+.periodo-rotulo {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: .08em;
+  color: var(--text3); text-transform: uppercase; margin-bottom: 3px;
+}
+.periodo-val { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.periodo-val.vazio { color: var(--text3); font-weight: 400; }
+.periodo-seta { color: var(--text3); font-size: 0.9rem; }
+
+.total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--accentbg); border: 1px solid rgba(110,231,183,0.2);
+  border-radius: var(--r); padding: 14px 16px; margin-bottom: 14px;
+}
+.total-label { font-size: 0.82rem; color: var(--text2); }
+.total-val { font-size: 1.15rem; font-weight: 800; color: var(--accent); }
+
+.btn-wpp {
+  width: 100%; background: var(--whats);
+  border: none; border-radius: var(--r); color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 700; padding: 17px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 8px 24px rgba(34,197,94,0.28);
+}
+.btn-wpp:active { opacity: .9; transform: scale(.98); }
+.btn-wpp svg { width: 22px; height: 22px; flex-shrink:0; }
+
+.aviso {
+  margin: 16px 16px 0; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r);
+  padding: 14px 16px; font-size: 0.78rem; color: var(--text2);
+  line-height: 1.55; text-align: center;
+}
+.aviso strong { color: var(--accent); }
+
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: #3f3f55; color: #fff;
+  padding: 11px 22px; border-radius: 30px;
+  font-size: 0.82rem; font-weight: 700;
+  z-index: 999; opacity: 0; transition: opacity .25s;
+  pointer-events: none; white-space: nowrap;
+  border: 1px solid var(--red); color: var(--red);
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="topo">
+  <div class="topo-label">Locação · Online</div>
+  <div class="topo-titulo">Faça sua<br>reserva: Sítio Vianas 🗓️</div>
+  <div class="topo-sub">Escolha as datas disponíveis e envie a solicitação pelo WhatsApp.</div>
+</div>
+
+<div class="legenda">
+  <div class="leg-item">
+    <div class="leg-dot" style="background:var(--accent)"></div>
+    Selecionado
+  </div>
+  <div class="leg-item">
+    <div class="leg-dot" style="background:var(--redbg); border:1.5px solid var(--red)"></div>
+    Já reservado
+  </div>
+  <div class="leg-item">
+    <div class="leg-dot" style="background:var(--surface2); border:1.5px solid rgba(110,231,183,0.4)"></div>
+    Hoje
+  </div>
+</div>
+
+<div class="cal-wrap">
+  <div class="cal-header">
+    <span class="cal-mes" id="cal-mes"></span>
+    <div class="cal-navs">
+      <button class="cal-btn" id="btn-prev">‹</button>
+      <button class="cal-btn" id="btn-next">›</button>
+    </div>
+  </div>
+  <div class="cal-semana">
+    <span>Dom</span><span>Seg</span><span>Ter</span>
+    <span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</div>
+
+<div class="section-title">Seus dados</div>
+<div class="form-wrap">
+
+  <div class="field">
+    <label>Nome completo</label>
+    <input id="inp-nome" type="text" placeholder="Seu nome" autocomplete="name">
+  </div>
+
+  <div class="field">
+    <label>WhatsApp</label>
+    <input id="inp-fone" type="tel" placeholder="(11) 99999-9999" autocomplete="tel">
+  </div>
+
+  <div class="field">
+    <label>Período selecionado</label>
+    <div class="periodo-box">
+      <div class="periodo-item">
+        <div class="periodo-rotulo">Entrada</div>
+        <div class="periodo-val vazio" id="disp-entrada">—</div>
+      </div>
+      <div class="periodo-seta">→</div>
+      <div class="periodo-item" style="text-align:right">
+        <div class="periodo-rotulo">Saída</div>
+        <div class="periodo-val vazio" id="disp-saida">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Observações (opcional)</label>
+    <textarea id="inp-obs" placeholder="Alguma informação extra..."></textarea>
+  </div>
+
+  <div class="total-row" id="total-row" style="display:none">
+    <span class="total-label">Total estimado</span>
+    <span class="total-val" id="total-val">R$ 0</span>
+  </div>
+
+  <button class="btn-wpp" onclick="enviar()">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    Solicitar pelo WhatsApp
+  </button>
+
+</div>
+
+<div class="aviso">
+  ⚡ Após enviar, aguarde a <strong>confirmação</strong> do proprietário antes de considerar a reserva garantida.
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  ✏️  SUAS CONFIGURAÇÕES
+// ═══════════════════════════════════════════════
+
+const WHATSAPP    = "5511974166149"; // Só números, com DDI (55 = Brasil)
+const NOME_LOCAL  = "Sítio Vianas"; // Nome do seu negócio
+const PRECO_DIA   = 0;               // Preço por dia em R$ (0 = oculta o total)
+
+// ✏️  DATAS RESERVADAS
+// Após confirmar uma reserva pelo WhatsApp, adicione o período aqui.
+// Todos que abrirem o site verão essas datas bloqueadas em vermelho.
+//
+// Formato: { de: "AAAA-MM-DD", ate: "AAAA-MM-DD" }
+
+const RESERVAS = [
+  { de: "2026-03-20", ate: "2026-03-23" },
+  { de: "2026-04-02", ate: "2026-04-05" },
+  { de: "2026-04-17", ate: "2026-04-21" },
+  { de: "2026-00-00", ate: "2026-00-00" },
+];
+
+// ═══════════════════════════════════════════════
+//  CÓDIGO — não precisa alterar abaixo
+// ═══════════════════════════════════════════════
+
+let viewDate = new Date();
+let entrada = null, saida = null;
+
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+               "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+function buildBloqueadas() {
+  const set = new Set();
+  RESERVAS.forEach(r => {
+    let d = new Date(r.de + "T12:00:00");
+    const fim = new Date(r.ate + "T12:00:00");
+    while (d <= fim) {
+      set.add(d.toISOString().slice(0,10));
+      d.setDate(d.getDate() + 1);
+    }
+  });
+  return set;
+}
+
+function renderCal() {
+  const bloq = buildBloqueadas();
+  const ano  = viewDate.getFullYear();
+  const mes  = viewDate.getMonth();
+  document.getElementById("cal-mes").textContent = `${MESES[mes]} ${ano}`;
+
+  const hoje    = new Date(); hoje.setHours(0,0,0,0);
+  const priDia  = new Date(ano, mes, 1).getDay();
+  const total   = new Date(ano, mes+1, 0).getDate();
+
+  let html = "<div></div>".repeat(priDia);
+
+  for (let n = 1; n <= total; n++) {
+    const d    = new Date(ano, mes, n, 12);
+    const iso  = d.toISOString().slice(0,10);
+    const dS   = new Date(ano, mes, n);
+    const past = dS < hoje;
+    const res  = bloq.has(iso);
+    const isE  = entrada && d.toDateString() === entrada.toDateString();
+    const isS  = saida   && d.toDateString() === saida.toDateString();
+    const inR  = entrada && saida && d > entrada && d < saida;
+    const isH  = dS.getTime() === hoje.getTime();
+
+    let cls = "dia";
+    if (past)      cls += " passado";
+    else if (res)  cls += " reservado";
+    else if (isE && isS) cls += " entrada saida";
+    else if (isE)  cls += " entrada";
+    else if (isS)  cls += " saida";
+    else if (inR)  cls += " intervalo";
+    else if (isH)  cls += " hoje";
+
+    const click = (!past && !res) ? ` onclick="clicar('${iso}')"` : "";
+    html += `<div class="${cls}"${click}>${n}</div>`;
+  }
+
+  document.getElementById("cal-grid").innerHTML = html;
+}
+
+function clicar(iso) {
+  const d = new Date(iso + "T12:00:00");
+
+  if (!entrada || (entrada && saida)) {
+    entrada = d; saida = null;
+  } else {
+    if (d < entrada)                        { saida = entrada; entrada = d; }
+    else if (d.getTime() === entrada.getTime()) { entrada = null; }
+    else                                    { saida = d; }
+  }
+
+  // bloqueia se o intervalo cruza data reservada
+  if (entrada && saida) {
+    const bloq = buildBloqueadas();
+    let chk = new Date(entrada); chk.setDate(chk.getDate()+1);
+    while (chk < saida) {
+      if (bloq.has(chk.toISOString().slice(0,10))) {
+        saida = null;
+        toast("Há datas já reservadas nesse período");
+        break;
+      }
+      chk.setDate(chk.getDate()+1);
+    }
+  }
+
+  atualizar();
+  renderCal();
+}
+
+function fmt(d) {
+  return d ? d.toLocaleDateString("pt-BR") : null;
+}
+
+function atualizar() {
+  const de  = document.getElementById("disp-entrada");
+  const ate = document.getElementById("disp-saida");
+
+  de.textContent  = fmt(entrada) || "—";
+  de.className    = "periodo-val" + (entrada ? "" : " vazio");
+  ate.textContent = fmt(saida)   || "—";
+  ate.className   = "periodo-val" + (saida   ? "" : " vazio");
+
+  const row = document.getElementById("total-row");
+  if (entrada && saida && PRECO_DIA > 0) {
+    const dias = Math.ceil((saida - entrada) / 86400000);
+    document.getElementById("total-val").textContent =
+      `R$ ${(dias * PRECO_DIA).toLocaleString("pt-BR")}`;
+    row.style.display = "flex";
+  } else {
+    row.style.display = "none";
+  }
+}
+
+function enviar() {
+  const nome = document.getElementById("inp-nome").value.trim();
+  const fone = document.getElementById("inp-fone").value.trim();
+  const obs  = document.getElementById("inp-obs").value.trim();
+
+  if (!nome)    return toast("Informe seu nome");
+  if (!fone)    return toast("Informe seu WhatsApp");
+  if (!entrada) return toast("Selecione a data de entrada no calendário");
+  if (!saida)   return toast("Selecione a data de saída no calendário");
+
+  const dias = Math.ceil((saida - entrada) / 86400000);
+  const totalTxt = PRECO_DIA > 0
+    ? `\n💰 *Total:* R$ ${(dias * PRECO_DIA).toLocaleString("pt-BR")}`
+    : "";
+
+  const msg =
+    `📋 *Solicitação de Reserva — ${NOME_LOCAL}*\n\n` +
+    `👤 *Nome:* ${nome}\n` +
+    `📱 *Contato:* ${fone}\n` +
+    `📅 *Entrada:* ${fmt(entrada)}\n` +
+    `📅 *Saída:* ${fmt(saida)}\n` +
+    `🗓 *Dias:* ${dias}` + totalTxt +
+    (obs ? `\n\n📝 *Obs:* ${obs}` : "") +
+    `\n\nAguardo a confirmação! 🙏`;
+
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = "⚠️ " + msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+document.getElementById("btn-prev").onclick = () => {
+  viewDate.setMonth(viewDate.getMonth() - 1); renderCal();
+};
+document.getElementById("btn-next").onclick = () => {
+  viewDate.setMonth(viewDate.getMonth() + 1); renderCal();
+};
+
+renderCal();
+</script>
+</body>
+</html>
